@@ -4,9 +4,10 @@ import { useMiniIDESelector } from '../containers/MiniIDEContext'
 
 export type MiniIDETerminalProps = {
   className?: string
+  style?: React.CSSProperties
 }
 
-export function MiniIDETerminal({ className = '' }: MiniIDETerminalProps) {
+export function MiniIDETerminal({ className = '', style }: MiniIDETerminalProps) {
   const consoleLines = useMiniIDESelector((state) => state.consoleLines)
   const appendConsoleLine = useMiniIDESelector((state) => state.appendConsoleLine)
   const isRunning = useMiniIDESelector((state) => state.isRunning)
@@ -60,6 +61,7 @@ export function MiniIDETerminal({ className = '' }: MiniIDETerminalProps) {
         fontSize: 12,
         minHeight: 128,
         overflow: 'hidden',
+        ...style,
       }}
     >
       <div

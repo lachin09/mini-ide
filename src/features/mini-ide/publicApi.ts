@@ -9,6 +9,7 @@ import { MiniIDEEditor } from './components/MiniIDEEditor'
 import { MiniIDEFiles } from './components/MiniIDEFiles'
 import { MiniIDELayout } from './components/MiniIDELayout'
 import { MiniIDEPreview } from './components/MiniIDEPreview'
+import { MiniIDEPlayground } from './components/MiniIDEPlayground'
 import { MiniIDEResizeHandle } from './components/MiniIDEResizeHandle'
 import { MiniIDETerminal } from './components/MiniIDETerminal'
 import { MiniIDERoot } from './containers/MiniIDERoot'
@@ -16,6 +17,7 @@ import { MiniIDERoot } from './containers/MiniIDERoot'
 export const MiniIDE = {
   Root: MiniIDERoot,
   Layout: MiniIDELayout,
+  Playground: MiniIDEPlayground,
   Files: MiniIDEFiles,
   Editor: MiniIDEEditor,
   Preview: MiniIDEPreview,

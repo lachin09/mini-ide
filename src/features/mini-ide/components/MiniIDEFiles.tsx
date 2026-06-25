@@ -5,6 +5,7 @@ import { useMiniIDESelector } from '../containers/MiniIDEContext'
 
 export type MiniIDEFilesProps = {
   className?: string
+  style?: React.CSSProperties
 }
 
 type TreeNode = {
@@ -126,7 +127,7 @@ function getParentPath(path: string) {
   return parts.length > 1 ? `/${parts.slice(0, -1).join('/')}` : ''
 }
 
-export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
+export function MiniIDEFiles({ className = '', style }: MiniIDEFilesProps) {
   const files = useMiniIDESelector((state) => state.files)
   const folders = useMiniIDESelector((state) => state.folders)
   const activeFile = useMiniIDESelector((state) => state.activeFile)
@@ -405,6 +406,7 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
         color: '#cccccc',
         minWidth: 0,
         overflow: 'auto',
+        ...style,
       }}
     >
       <div

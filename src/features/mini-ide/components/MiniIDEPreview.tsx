@@ -2,9 +2,10 @@ import { useMiniIDESelector } from '../containers/MiniIDEContext'
 
 export type MiniIDEPreviewProps = {
   className?: string
+  style?: React.CSSProperties
 }
 
-export function MiniIDEPreview({ className = '' }: MiniIDEPreviewProps) {
+export function MiniIDEPreview({ className = '', style }: MiniIDEPreviewProps) {
   const previewUrl = useMiniIDESelector((state) => state.previewUrl)
 
   return (
@@ -15,6 +16,7 @@ export function MiniIDEPreview({ className = '' }: MiniIDEPreviewProps) {
         background: '#ffffff',
         minHeight: 256,
         overflow: 'hidden',
+        ...style,
       }}
     >
       {previewUrl ? (

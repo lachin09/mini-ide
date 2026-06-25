@@ -1,9 +1,11 @@
 # `@academy/mini-ide`
 
-Reusable Mini IDE components for programming lessons.
+Reusable browser Mini IDE components for programming lessons and playgrounds.
 
-The library is an IDE kit, not one fixed IDE screen. Lesson authors choose the
-parts they need: editor, files, preview, terminal, buttons, and layout.
+The library can be used as a full playground or as a composable IDE kit. Use
+`MiniIDE.Playground` when you want the complete VS Code-style experience, or
+compose `Root`, `Editor`, `Preview`, `Terminal`, and other parts yourself for
+lesson-specific screens.
 
 Default components include basic inline styles, so the package does not require
 your app to use Tailwind or any project-level stylesheet. Any `className`
@@ -12,15 +14,12 @@ examples below are optional consumer-side layout overrides.
 ```tsx
 import { MiniIDE } from '@academy/mini-ide'
 
-<MiniIDE.Root engine="html" files={files}>
-  <MiniIDE.Editor />
-  <MiniIDE.Preview />
-  <MiniIDE.Terminal />
-  <MiniIDE.Actions>
-    <MiniIDE.RunButton />
-    <MiniIDE.ResetButton />
-  </MiniIDE.Actions>
-</MiniIDE.Root>
+<MiniIDE.Playground
+  engine="auto"
+  files={files}
+  folders={['/src', '/src/components']}
+  activeFile="/src/App.jsx"
+/>
 ```
 
 ## What It Supports
@@ -32,6 +31,7 @@ import { MiniIDE } from '@academy/mini-ide'
 | TypeScript | `typescript` | `.html`, `.css`, `.ts` |
 | React JSX | `react` | `.jsx`, `.js`, `.css` |
 | React TSX | `react-ts` | `.tsx`, `.ts`, `.css` |
+| Auto playground | `auto` | Chooses runtime from the active file extension |
 | Tailwind | any browser engine | Tailwind classes in HTML/JSX/TSX |
 
 Tailwind is injected into the sandboxed preview through the Tailwind browser
@@ -89,6 +89,7 @@ Supported `language` values:
 
 ```tsx
 MiniIDE.Root
+MiniIDE.Playground
 MiniIDE.Layout
 MiniIDE.Files
 MiniIDE.Editor
@@ -98,21 +99,24 @@ MiniIDE.Actions
 MiniIDE.RunButton
 MiniIDE.ResetButton
 MiniIDE.ClearConsoleButton
+MiniIDE.FormatButton
+MiniIDE.ResizeHandle
 ```
 
 ## Restricted Terminal
 
 `MiniIDE.Terminal` shows console output and includes a small command input. It
-intentionally supports only two commands:
+intentionally supports only three commands:
 
 ```bash
 npm install
+npm run
 npm run dev
 ```
 
 `npm install` prints a lesson-friendly message because dependencies are already
-prepared inside the browser runtime. `npm run dev` runs the current MiniIDE
-engine, which updates the preview and terminal output.
+prepared inside the browser runtime. `npm run` and `npm run dev` run the
+current MiniIDE engine, which updates the preview and terminal output.
 
 Any other command is rejected with an error message. This keeps lessons
 predictable and avoids pretending that the browser terminal is a full system

@@ -5,6 +5,7 @@ export type MiniIDEResizeHandleProps = {
   min?: number
   max?: number
   invert?: boolean
+  style?: React.CSSProperties
 }
 
 export function MiniIDEResizeHandle({
@@ -14,6 +15,7 @@ export function MiniIDEResizeHandle({
   min = 120,
   max = 640,
   invert = false,
+  style,
 }: MiniIDEResizeHandleProps) {
   function handlePointerDown(event: React.PointerEvent<HTMLButtonElement>) {
     const layout = event.currentTarget.closest<HTMLElement>('[data-mini-ide-layout]')
@@ -60,6 +62,7 @@ export function MiniIDEResizeHandle({
         minHeight: 0,
         padding: 0,
         touchAction: 'none',
+        ...style,
       }}
     />
   )

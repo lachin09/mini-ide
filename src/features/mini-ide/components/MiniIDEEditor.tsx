@@ -7,6 +7,7 @@ export type MiniIDEEditorProps = {
   autoFormatOnBlur?: boolean
   className?: string
   height?: string
+  style?: React.CSSProperties
   theme?: 'vs-dark' | 'light'
 }
 
@@ -26,6 +27,7 @@ export function MiniIDEEditor({
   autoFormatOnBlur = false,
   className = '',
   height = '100%',
+  style,
   theme = 'vs-dark',
 }: MiniIDEEditorProps) {
   const editorRef = useRef<any>(null)
@@ -81,6 +83,7 @@ export function MiniIDEEditor({
         minHeight: 256,
         minWidth: 0,
         overflow: 'hidden',
+        ...style,
       }}
     >
       <Editor
