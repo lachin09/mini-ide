@@ -22,6 +22,7 @@ export function MiniIDERoot({
   folders,
 }: MiniIDERootProps) {
   const engineRef = useRef<ExecutionEngine>(executionEngine ?? createExecutionEngine(engine))
+  const destroyTimerRef = useRef<number | null>(null)
   const storeRef = useRef(
     createIDEStore({
       activeFile,
@@ -43,6 +44,11 @@ export function MiniIDERoot({
   useEffect(() => {
     const store = storeRef.current
     const currentEngine = engineRef.current
+    if (destroyTimerRef.current !== null) {
+      window.clearTimeout(destroyTimerRef.current)
+      destroyTimerRef.current = null
+    }
+
     const unsubscribeConsole = currentEngine.onConsole((line) => {
       store.getState().appendConsoleLine(line)
     })
@@ -61,7 +67,10 @@ export function MiniIDERoot({
       didCancel = true
       unsubscribeConsole()
       unsubscribePreview()
-      void currentEngine.destroy()
+      destroyTimerRef.current = window.setTimeout(() => {
+        destroyTimerRef.current = null
+        void currentEngine.destroy()
+      }, 0)
     }
   }, [autoRun])
 
