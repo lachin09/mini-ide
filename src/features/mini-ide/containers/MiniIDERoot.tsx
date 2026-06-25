@@ -53,11 +53,13 @@ export function MiniIDERoot({
       store.getState().setPreviewUrl(url)
     })
 
-    void currentEngine.initialize(store.getState().files).then(() => {
-      if (autoRun) {
+    void currentEngine.initialize(store.getState().files)
+
+    if (autoRun) {
+      window.setTimeout(() => {
         void store.getState().run()
-      }
-    })
+      }, 0)
+    }
   }
 
   useEffect(() => {

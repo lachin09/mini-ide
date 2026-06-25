@@ -10,27 +10,28 @@ export class AutoExecutionEngine implements ExecutionEngine {
   private activeEngine: ExecutionEngine = this.htmlEngine
   private readonly consoleCallbacks = new Set<(line: string) => void>()
   private readonly previewCallbacks = new Set<(url: string | null) => void>()
+  private didWireEngines = false
 
   async initialize(files: FileMap): Promise<void> {
     this.files = files
 
-    await Promise.all([
-      this.htmlEngine.initialize(files),
-      this.reactEngine.initialize(files),
-    ])
+    if (!this.didWireEngines) {
+      this.didWireEngines = true
+      this.htmlEngine.onConsole((line) => this.emitConsole(line))
+      this.reactEngine.onConsole((line) => this.emitConsole(line))
+      this.htmlEngine.onPreview((url) => {
+        if (this.activeEngine === this.htmlEngine) {
+          this.emitPreview(url)
+        }
+      })
+      this.reactEngine.onPreview((url) => {
+        if (this.activeEngine === this.reactEngine) {
+          this.emitPreview(url)
+        }
+      })
+    }
 
-    this.htmlEngine.onConsole((line) => this.emitConsole(line))
-    this.reactEngine.onConsole((line) => this.emitConsole(line))
-    this.htmlEngine.onPreview((url) => {
-      if (this.activeEngine === this.htmlEngine) {
-        this.emitPreview(url)
-      }
-    })
-    this.reactEngine.onPreview((url) => {
-      if (this.activeEngine === this.reactEngine) {
-        this.emitPreview(url)
-      }
-    })
+    await Promise.all([this.htmlEngine.initialize(files), this.reactEngine.initialize(files)])
   }
 
   async run(files = this.files, activeFile?: string): Promise<void> {
