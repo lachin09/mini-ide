@@ -1,0 +1,54 @@
+{
+  "name": "@academy/mini-ide",
+  "version": "0.1.0",
+  "description": "Composable browser mini IDE components for programming lessons.",
+  "keywords": [
+    "mini-ide",
+    "react",
+    "monaco",
+    "lessons",
+    "education",
+    "code-editor",
+    "playground"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "main": "./dist/mini-ide.umd.cjs",
+  "module": "./dist/mini-ide.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/mini-ide.js",
+      "require": "./dist/mini-ide.umd.cjs"
+    }
+  },
+  "scripts": {
+    "build": "vite build && tsc -p tsconfig.build.json",
+    "example:build": "npm --prefix example run build",
+    "example:dev": "npm --prefix example run dev",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "monaco-editor": "^0.55.1",
+    "typescript": "^6.0.3",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.2",
+    "vite": "npm:rolldown-vite@7.2.5"
+  }
+}

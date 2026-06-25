@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install package dependencies
+        run: npm ci
+
+      - name: Install example dependencies
+        run: npm --prefix example ci
+
+      - name: Build package
+        run: npm run build
+
+      - name: Build example
+        run: npm run example:build
