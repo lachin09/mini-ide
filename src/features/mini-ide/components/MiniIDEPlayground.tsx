@@ -11,6 +11,7 @@ import { useMiniIDESelector } from '../containers/MiniIDEContext'
 
 export type MiniIDEPlaygroundProps = Omit<MiniIDEOptions, 'engine'> & {
   engine?: MiniIDEOptions['engine']
+  autoRun?: boolean
   title?: string
   subtitle?: string
   height?: string | number
@@ -114,8 +115,31 @@ function PlaygroundToolbar() {
   )
 }
 
+function PlaygroundAutoRunner({ enabled }: { enabled: boolean }) {
+  const files = useMiniIDESelector((state) => state.files)
+  const activeFile = useMiniIDESelector((state) => state.activeFile)
+  const run = useMiniIDESelector((state) => state.run)
+
+  useEffect(() => {
+    if (!enabled) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void run()
+    }, 250)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [activeFile, files, enabled, run])
+
+  return null
+}
+
 export function MiniIDEPlayground({
   activeFile,
+  autoRun = true,
   className = '',
   engine = 'auto',
   files,
@@ -237,6 +261,7 @@ export function MiniIDEPlayground({
                 minHeight: 620,
               }}
             >
+              <PlaygroundAutoRunner enabled={autoRun} />
               <PlaygroundToolbar />
 
               <MiniIDEFiles style={{ gridColumn: 1, gridRow: '2 / 4' }} />
