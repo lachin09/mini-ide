@@ -100,6 +100,7 @@ export class HtmlExecutionEngine implements ExecutionEngine {
         file.path.endsWith('.js') ||
         file.path.endsWith('.ts')
       )
+      .filter((file) => !file.code.includes('react-dom/client'))
     const js = (await Promise.all(executableFiles.map((file) => transpileExecutableFile(file))))
       .join('\n')
 

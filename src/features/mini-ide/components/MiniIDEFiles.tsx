@@ -136,10 +136,14 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
   const renamePath = useMiniIDESelector((state) => state.renamePath)
   const deletePath = useMiniIDESelector((state) => state.deletePath)
   const [openFolders, setOpenFolders] = useState<Set<string>>(() => new Set(['/src']))
+  const [focusedPath, setFocusedPath] = useState('')
   const tree = useMemo(() => buildTree(files, folders), [files, folders])
 
   function askForFile(parentPath = '') {
-    const nextPath = window.prompt('New file path', getDefaultFilePath(parentPath))
+    const nextPath = window.prompt(
+      parentPath ? `New file inside ${parentPath}` : 'New file path',
+      getDefaultFilePath(parentPath),
+    )
 
     if (nextPath) {
       createFile(nextPath)
@@ -148,7 +152,10 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
   }
 
   function askForFolder(parentPath = '') {
-    const nextPath = window.prompt('New folder path', getDefaultFolderPath(parentPath))
+    const nextPath = window.prompt(
+      parentPath ? `New folder inside ${parentPath}` : 'New folder path',
+      getDefaultFolderPath(parentPath),
+    )
 
     if (nextPath) {
       createFolder(nextPath)
@@ -206,17 +213,19 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
     const isFolder = node.type === 'folder'
     const isOpen = openFolders.has(node.path)
     const isActive = node.path === activeFile
+    const isFocused = node.path === focusedPath
 
     return (
       <div key={node.path}>
         <div
+          onMouseEnter={() => setFocusedPath(node.path)}
           style={{
             alignItems: 'center',
-            background: isActive ? '#37373d' : 'transparent',
+            background: isActive ? '#37373d' : isFocused ? '#2a2d2e' : 'transparent',
             color: isActive ? '#ffffff' : '#cccccc',
             display: 'grid',
             gridTemplateColumns: 'minmax(0,1fr) auto',
-            minHeight: 24,
+            minHeight: 22,
             paddingLeft: 8 + depth * 12,
           }}
         >
@@ -238,19 +247,19 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
               cursor: 'pointer',
               display: 'flex',
               fontSize: 13,
-              gap: 6,
-              minHeight: 24,
+              gap: 5,
+              minHeight: 22,
               minWidth: 0,
               overflow: 'hidden',
-              padding: '0 4px',
+              padding: '0 3px',
               textAlign: 'left',
             }}
           >
-            <span style={{ color: '#8a8a8a', width: 12 }}>
-              {isFolder ? (isOpen ? 'v' : '>') : ''}
+            <span style={{ color: '#8a8a8a', width: 10 }}>
+              {isFolder ? (isOpen ? '▾' : '▸') : ''}
             </span>
-            <span style={{ color: isFolder ? '#dcb67a' : '#8ab4f8', width: 14 }}>
-              {isFolder ? '[d]' : '[f]'}
+            <span style={{ width: 15 }}>
+              {isFolder ? (isOpen ? '▣' : '▢') : getFileIcon(node.name)}
             </span>
             <span
               style={{
@@ -263,7 +272,7 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
             </span>
           </button>
 
-          <div style={{ display: 'flex', opacity: 0.9 }}>
+          <div style={{ display: 'flex', opacity: isFocused || isActive ? 1 : 0 }}>
             {isFolder ? (
               <>
                 <button
@@ -272,7 +281,7 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
                   title="New file"
                   style={iconButtonStyle}
                 >
-                  +f
+                  +
                 </button>
                 <button
                   type="button"
@@ -280,7 +289,7 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
                   title="New folder"
                   style={iconButtonStyle}
                 >
-                  +d
+                  ▢
                 </button>
               </>
             ) : null}
@@ -290,7 +299,7 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
               title="Rename"
               style={iconButtonStyle}
             >
-              rn
+              ✎
             </button>
             <button
               type="button"
@@ -298,7 +307,7 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
               title="Delete"
               style={{ ...iconButtonStyle, color: '#fca5a5' }}
             >
-              x
+              ×
             </button>
           </div>
         </div>
@@ -343,10 +352,10 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
           Explorer
         </span>
         <button type="button" onClick={() => askForFile()} title="New file" style={toolbarButtonStyle}>
-          + File
+          +
         </button>
         <button type="button" onClick={() => askForFolder()} title="New folder" style={toolbarButtonStyle}>
-          + Folder
+          ▢
         </button>
       </div>
 
@@ -368,17 +377,31 @@ const iconButtonStyle: React.CSSProperties = {
   border: 0,
   color: '#9ca3af',
   cursor: 'pointer',
-  fontSize: 11,
-  minHeight: 24,
-  padding: '0 4px',
+  fontSize: 13,
+  lineHeight: 1,
+  minHeight: 22,
+  minWidth: 22,
+  padding: 0,
 }
 
 const toolbarButtonStyle: React.CSSProperties = {
   background: 'transparent',
-  border: '1px solid #3c3c3c',
+  border: 0,
   color: '#d4d4d4',
   cursor: 'pointer',
-  fontSize: 11,
+  fontSize: 15,
+  lineHeight: 1,
   minHeight: 24,
-  padding: '0 6px',
+  minWidth: 24,
+  padding: 0,
+}
+
+function getFileIcon(name: string): string {
+  if (name.endsWith('.tsx') || name.endsWith('.ts')) return 'TS'
+  if (name.endsWith('.jsx') || name.endsWith('.js')) return 'JS'
+  if (name.endsWith('.html')) return '<>'
+  if (name.endsWith('.css')) return '#'
+  if (name.endsWith('.json')) return '{}'
+
+  return '•'
 }

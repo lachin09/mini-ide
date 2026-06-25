@@ -1,4 +1,11 @@
-export type IDEEngineType = 'html' | 'javascript' | 'typescript' | 'react' | 'react-ts' | 'node'
+export type IDEEngineType =
+  | 'auto'
+  | 'html'
+  | 'javascript'
+  | 'typescript'
+  | 'react'
+  | 'react-ts'
+  | 'node'
 
 export type IDEFileLanguage =
   | 'html'
