@@ -110,6 +110,10 @@ export class HtmlExecutionEngine implements ExecutionEngine {
     const js = (await Promise.all(executableFiles.map((file) => transpileExecutableFile(file))))
       .join('\n')
 
+    if (activeFile) {
+      this.emitConsole(`Browser preview entry: ${activeFile}`)
+    }
+
     return `<!doctype html>
 <html>
   <head>

@@ -36,6 +36,11 @@ export class AutoExecutionEngine implements ExecutionEngine {
   async run(files = this.files, activeFile?: string): Promise<void> {
     this.files = files
     this.activeEngine = this.detectEngine(files, activeFile)
+    this.emitConsole(
+      `Running ${activeFile ?? 'workspace'} with ${
+        this.activeEngine === this.reactEngine ? 'React preview' : 'browser preview'
+      }.`,
+    )
 
     if (this.activeEngine === this.htmlEngine) {
       await this.reactEngine.reset(files)

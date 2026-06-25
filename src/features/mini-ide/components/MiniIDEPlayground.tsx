@@ -165,10 +165,10 @@ export function MiniIDEPlayground({
                 <MiniIDEFormatButton />
               </MiniIDEActions>
 
-              <MiniIDEFiles style={{ gridRow: '2 / 4' }} />
-              <MiniIDEEditor autoFormatOnBlur style={{ minHeight: 0 }} />
-              <MiniIDEPreview style={{ gridRow: '2 / 4', minHeight: 0 }} />
-              <MiniIDETerminal style={{ gridColumn: 2, minHeight: 0 }} />
+              <MiniIDEFiles style={{ gridColumn: 1, gridRow: '2 / 4' }} />
+              <MiniIDEEditor autoFormatOnBlur style={{ gridColumn: 2, gridRow: 2, minHeight: 0 }} />
+              <MiniIDEPreview style={{ gridColumn: 3, gridRow: '2 / 4', minHeight: 0 }} />
+              <MiniIDETerminal style={{ gridColumn: 2, gridRow: 3, minHeight: 0 }} />
 
               <MiniIDEResizeHandle
                 direction="horizontal"

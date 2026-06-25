@@ -77,6 +77,8 @@ export class ReactExecutionEngine implements ExecutionEngine {
 
     if (!entryUrl) {
       this.emitConsole('[error] React entry file was not found.')
+    } else {
+      this.emitConsole(`React preview entry: ${entryPath}`)
     }
 
     return `<!doctype html>
