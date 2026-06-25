@@ -1,4 +1,5 @@
 import type { MiniIDEOptions } from '../../../core/ide/models/ideTypes'
+import { useEffect, useRef } from 'react'
 import { MiniIDEEditor } from './MiniIDEEditor'
 import { MiniIDEFiles } from './MiniIDEFiles'
 import { MiniIDELayout } from './MiniIDELayout'
@@ -31,11 +32,31 @@ function PlaygroundButton({
   disabled?: boolean
   onClick: () => void
 }) {
+  const buttonRef = useRef<HTMLButtonElement | null>(null)
+
+  useEffect(() => {
+    const button = buttonRef.current
+
+    if (!button || disabled) {
+      return
+    }
+
+    function handleNativeClick() {
+      onClick()
+    }
+
+    button.addEventListener('click', handleNativeClick)
+
+    return () => {
+      button.removeEventListener('click', handleNativeClick)
+    }
+  }, [disabled, onClick])
+
   return (
     <button
+      ref={buttonRef}
       type="button"
       disabled={disabled}
-      onClick={onClick}
       style={{
         alignItems: 'center',
         background: '#0f172a',
