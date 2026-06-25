@@ -1,11 +1,13 @@
 export type MiniIDELayoutProps = {
   children: React.ReactNode
   className?: string
+  style?: React.CSSProperties
 }
 
-export function MiniIDELayout({ children, className = '' }: MiniIDELayoutProps) {
+export function MiniIDELayout({ children, className = '', style }: MiniIDELayoutProps) {
   return (
     <div
+      data-mini-ide-layout
       className={className}
       style={{
         background: '#020617',
@@ -16,6 +18,8 @@ export function MiniIDELayout({ children, className = '' }: MiniIDELayoutProps) 
         minHeight: 520,
         minWidth: 0,
         overflow: 'hidden',
+        position: 'relative',
+        ...style,
       }}
     >
       {children}

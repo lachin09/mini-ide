@@ -31,3 +31,13 @@ export function MiniIDEClearConsoleButton() {
     </MiniIDEButton>
   )
 }
+
+export function MiniIDEFormatButton() {
+  const requestFormat = useMiniIDESelector((state) => state.requestFormat)
+
+  return (
+    <MiniIDEButton onClick={requestFormat}>
+      Format
+    </MiniIDEButton>
+  )
+}

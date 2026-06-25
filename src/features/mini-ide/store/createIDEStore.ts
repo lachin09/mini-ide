@@ -17,6 +17,7 @@ export type IDEActions = {
   deletePath: (path: string) => void
   run: () => Promise<void>
   reset: () => Promise<void>
+  requestFormat: () => void
   clearConsole: () => void
   appendConsoleLine: (line: string) => void
   setPreviewUrl: (url: string | null) => void
@@ -49,6 +50,7 @@ export function createIDEStore({
     consoleLines: [],
     isRunning: false,
     previewUrl: null,
+    formatRequestId: 0,
 
     setFile: (path, code) => {
       set((state) => {
@@ -220,6 +222,7 @@ export function createIDEStore({
         consoleLines: [],
         previewUrl: null,
         isRunning: false,
+        formatRequestId: 0,
       })
 
       try {
@@ -228,6 +231,10 @@ export function createIDEStore({
         const message = error instanceof Error ? error.message : String(error)
         get().appendConsoleLine(`[error] ${message}`)
       }
+    },
+
+    requestFormat: () => {
+      set((state) => ({ formatRequestId: state.formatRequestId + 1 }))
     },
 
     clearConsole: () => set({ consoleLines: [] }),

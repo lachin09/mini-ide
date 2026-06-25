@@ -40,6 +40,7 @@ export type IDEState = {
   consoleLines: string[]
   isRunning: boolean
   previewUrl: string | null
+  formatRequestId: number
 }
 
 export type MiniIDEOptions = {

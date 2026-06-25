@@ -1,8 +1,10 @@
 import Editor from '@monaco-editor/react'
+import { useEffect, useRef } from 'react'
 
 import { useMiniIDESelector } from '../containers/MiniIDEContext'
 
 export type MiniIDEEditorProps = {
+  autoFormatOnBlur?: boolean
   className?: string
   height?: string
   theme?: 'vs-dark' | 'light'
@@ -21,13 +23,36 @@ function getMonacoLanguage(language?: string): string {
 }
 
 export function MiniIDEEditor({
+  autoFormatOnBlur = false,
   className = '',
   height = '100%',
   theme = 'vs-dark',
 }: MiniIDEEditorProps) {
+  const editorRef = useRef<any>(null)
   const activeFilePath = useMiniIDESelector((state) => state.activeFile)
   const activeFile = useMiniIDESelector((state) => state.files[state.activeFile])
+  const formatRequestId = useMiniIDESelector((state) => state.formatRequestId)
   const setFile = useMiniIDESelector((state) => state.setFile)
+
+  async function formatDocument() {
+    const editor = editorRef.current
+
+    if (!editor) {
+      return
+    }
+
+    const action = editor.getAction('editor.action.formatDocument')
+
+    if (action?.isSupported()) {
+      await action.run()
+    }
+  }
+
+  useEffect(() => {
+    if (formatRequestId > 0) {
+      void formatDocument()
+    }
+  }, [formatRequestId])
 
   if (!activeFile) {
     return (
@@ -61,6 +86,14 @@ export function MiniIDEEditor({
       <Editor
         height={height}
         language={getMonacoLanguage(activeFile.language)}
+        onMount={(editor) => {
+          editorRef.current = editor
+          if (autoFormatOnBlur) {
+            editor.onDidBlurEditorText(() => {
+              void formatDocument()
+            })
+          }
+        }}
         onChange={(value = '') => setFile(activeFilePath, value)}
         path={activeFile.path}
         theme={theme}
