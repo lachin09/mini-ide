@@ -33,6 +33,7 @@
     "build": "vite build && tsc -p tsconfig.build.json",
     "example:build": "npm --prefix example run build",
     "example:dev": "npm --prefix example run dev",
+    "prepare": "npm run build",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
