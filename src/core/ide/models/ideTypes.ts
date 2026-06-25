@@ -33,6 +33,8 @@ export type IDEConsoleEvent = {
 export type IDEState = {
   files: FileMap
   initialFiles: FileMap
+  folders: string[]
+  initialFolders: string[]
   activeFile: string
   initialActiveFile: string
   consoleLines: string[]
@@ -44,6 +46,7 @@ export type MiniIDEOptions = {
   engine: IDEEngineType
   files: FileMap
   activeFile?: string
+  folders?: string[]
   dependencies?: IDEDependencies
   env?: IDEEnvironment
 }

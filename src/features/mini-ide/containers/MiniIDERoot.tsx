@@ -17,6 +17,7 @@ export function MiniIDERoot({
   engine,
   executionEngine,
   files,
+  folders,
 }: MiniIDERootProps) {
   const engineRef = useRef<ExecutionEngine>(executionEngine ?? createExecutionEngine(engine))
   const storeRef = useRef(
@@ -25,6 +26,7 @@ export function MiniIDERoot({
       engine,
       executionEngine: engineRef.current,
       files,
+      folders,
     }),
   )
 
