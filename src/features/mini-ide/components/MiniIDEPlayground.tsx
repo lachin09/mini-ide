@@ -1,11 +1,4 @@
 import type { MiniIDEOptions } from '../../../core/ide/models/ideTypes'
-import { MiniIDEActions } from './MiniIDEActions'
-import {
-  MiniIDEClearConsoleButton,
-  MiniIDEFormatButton,
-  MiniIDEResetButton,
-  MiniIDERunButton,
-} from './MiniIDEButtons'
 import { MiniIDEEditor } from './MiniIDEEditor'
 import { MiniIDEFiles } from './MiniIDEFiles'
 import { MiniIDELayout } from './MiniIDELayout'
@@ -13,6 +6,7 @@ import { MiniIDEPreview } from './MiniIDEPreview'
 import { MiniIDEResizeHandle } from './MiniIDEResizeHandle'
 import { MiniIDETerminal } from './MiniIDETerminal'
 import { MiniIDERoot } from '../containers/MiniIDERoot'
+import { useMiniIDESelector } from '../containers/MiniIDEContext'
 
 export type MiniIDEPlaygroundProps = Omit<MiniIDEOptions, 'engine'> & {
   engine?: MiniIDEOptions['engine']
@@ -27,6 +21,77 @@ const layoutStyle = {
   '--mini-ide-preview-width': '380px',
   '--mini-ide-terminal-height': '180px',
 } as React.CSSProperties
+
+function PlaygroundButton({
+  children,
+  disabled = false,
+  onClick,
+}: {
+  children: React.ReactNode
+  disabled?: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      style={{
+        alignItems: 'center',
+        background: '#0f172a',
+        border: '1px solid #334155',
+        borderRadius: 6,
+        color: '#f8fafc',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        display: 'inline-flex',
+        fontSize: 14,
+        fontWeight: 500,
+        justifyContent: 'center',
+        minHeight: 36,
+        opacity: disabled ? 0.55 : 1,
+        padding: '0 12px',
+      }}
+    >
+      {children}
+    </button>
+  )
+}
+
+function PlaygroundToolbar() {
+  const isRunning = useMiniIDESelector((state) => state.isRunning)
+  const run = useMiniIDESelector((state) => state.run)
+  const reset = useMiniIDESelector((state) => state.reset)
+  const clearConsole = useMiniIDESelector((state) => state.clearConsole)
+  const requestFormat = useMiniIDESelector((state) => state.requestFormat)
+
+  return (
+    <div
+      style={{
+        alignItems: 'center',
+        background: '#0f172a',
+        borderBottom: '1px solid #1e293b',
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: 8,
+        gridColumn: '1 / 4',
+        padding: 8,
+      }}
+    >
+      <PlaygroundButton disabled={isRunning} onClick={() => void run()}>
+        {isRunning ? 'Running...' : 'Run'}
+      </PlaygroundButton>
+      <PlaygroundButton onClick={() => void reset()}>
+        Reset
+      </PlaygroundButton>
+      <PlaygroundButton onClick={clearConsole}>
+        Clear Console
+      </PlaygroundButton>
+      <PlaygroundButton onClick={requestFormat}>
+        Format
+      </PlaygroundButton>
+    </div>
+  )
+}
 
 export function MiniIDEPlayground({
   activeFile,
@@ -151,19 +216,7 @@ export function MiniIDEPlayground({
                 minHeight: 620,
               }}
             >
-              <MiniIDEActions
-                style={{
-                  background: '#0f172a',
-                  borderBottom: '1px solid #1e293b',
-                  gridColumn: '1 / 4',
-                  padding: 8,
-                }}
-              >
-                <MiniIDERunButton />
-                <MiniIDEResetButton />
-                <MiniIDEClearConsoleButton />
-                <MiniIDEFormatButton />
-              </MiniIDEActions>
+              <PlaygroundToolbar />
 
               <MiniIDEFiles style={{ gridColumn: 1, gridRow: '2 / 4' }} />
               <MiniIDEEditor autoFormatOnBlur style={{ gridColumn: 2, gridRow: 2, minHeight: 0 }} />
