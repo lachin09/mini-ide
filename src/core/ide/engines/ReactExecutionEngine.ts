@@ -177,10 +177,12 @@ export class ReactExecutionEngine implements ExecutionEngine {
     }
 
     for (const [specifier, resolvedUrl] of importReplacements) {
-      source = source.replaceAll(`from '${specifier}'`, `from '${resolvedUrl}'`)
-      source = source.replaceAll(`from "${specifier}"`, `from '${resolvedUrl}'`)
-      source = source.replaceAll(`import '${specifier}'`, `import '${resolvedUrl}'`)
-      source = source.replaceAll(`import "${specifier}"`, `import '${resolvedUrl}'`)
+      const safeUrl = JSON.stringify(resolvedUrl)
+
+      source = source.replaceAll(`from '${specifier}'`, `from ${safeUrl}`)
+      source = source.replaceAll(`from "${specifier}"`, `from ${safeUrl}`)
+      source = source.replaceAll(`import '${specifier}'`, `import ${safeUrl}`)
+      source = source.replaceAll(`import "${specifier}"`, `import ${safeUrl}`)
     }
 
     const dataUrl = `data:application/javascript;charset=utf-8,${encodeURIComponent(source)}`
