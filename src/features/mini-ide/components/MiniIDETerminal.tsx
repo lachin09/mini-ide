@@ -35,17 +35,17 @@ export function MiniIDETerminal({ className = '' }: MiniIDETerminalProps) {
 
     if (normalizedCommand === 'npm install') {
       appendConsoleLine('Dependencies are already installed in this browser lesson.')
-      appendConsoleLine('Use npm run dev to run the current project.')
+      appendConsoleLine('Use npm run or npm run dev to run the current file/project.')
       return
     }
 
-    if (normalizedCommand === 'npm run dev') {
-      appendConsoleLine('Starting MiniIDE preview...')
+    if (normalizedCommand === 'npm run' || normalizedCommand === 'npm run dev') {
+      appendConsoleLine('Starting MiniIDE runner...')
       void run()
       return
     }
 
-    appendConsoleLine('[error] Only npm install and npm run dev are available.')
+    appendConsoleLine('[error] Only npm install, npm run, and npm run dev are available.')
   }
 
   return (
@@ -111,7 +111,7 @@ export function MiniIDETerminal({ className = '' }: MiniIDETerminalProps) {
           autoCorrect="off"
           disabled={isRunning}
           onChange={(event) => setCommand(event.target.value)}
-          placeholder="npm install or npm run dev"
+          placeholder="npm install, npm run, or npm run dev"
           spellCheck={false}
           value={command}
           style={{

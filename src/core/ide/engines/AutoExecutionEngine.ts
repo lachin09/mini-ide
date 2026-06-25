@@ -33,9 +33,9 @@ export class AutoExecutionEngine implements ExecutionEngine {
     })
   }
 
-  async run(files = this.files): Promise<void> {
+  async run(files = this.files, activeFile?: string): Promise<void> {
     this.files = files
-    this.activeEngine = this.detectEngine(files)
+    this.activeEngine = this.detectEngine(files, activeFile)
 
     if (this.activeEngine === this.htmlEngine) {
       await this.reactEngine.reset(files)
@@ -43,7 +43,7 @@ export class AutoExecutionEngine implements ExecutionEngine {
       await this.htmlEngine.reset(files)
     }
 
-    await this.activeEngine.run(files)
+    await this.activeEngine.run(files, activeFile)
   }
 
   async reset(files = this.files): Promise<void> {
@@ -76,7 +76,15 @@ export class AutoExecutionEngine implements ExecutionEngine {
     return () => this.previewCallbacks.delete(callback)
   }
 
-  private detectEngine(files: FileMap): ExecutionEngine {
+  private detectEngine(files: FileMap, activeFile?: string): ExecutionEngine {
+    if (activeFile && /\.(js|ts|html)$/.test(activeFile)) {
+      return this.htmlEngine
+    }
+
+    if (activeFile && /\.(jsx|tsx)$/.test(activeFile)) {
+      return this.reactEngine
+    }
+
     const filePaths = Object.keys(files)
 
     if (

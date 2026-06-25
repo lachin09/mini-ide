@@ -203,7 +203,7 @@ export function createIDEStore({
       set({ isRunning: true })
 
       try {
-        await executionEngine.run(get().files)
+        await executionEngine.run(get().files, get().activeFile)
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
         get().appendConsoleLine(`[error] ${message}`)

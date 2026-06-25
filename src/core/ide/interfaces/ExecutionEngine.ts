@@ -3,7 +3,7 @@ import type { FileMap } from '../models/ideTypes'
 export interface ExecutionEngine {
   initialize(files: FileMap): Promise<void>
 
-  run(files?: FileMap): Promise<void>
+  run(files?: FileMap, activeFile?: string): Promise<void>
 
   reset(files?: FileMap): Promise<void>
 

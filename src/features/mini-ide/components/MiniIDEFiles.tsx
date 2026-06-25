@@ -137,30 +137,53 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
   const deletePath = useMiniIDESelector((state) => state.deletePath)
   const [openFolders, setOpenFolders] = useState<Set<string>>(() => new Set(['/src']))
   const [focusedPath, setFocusedPath] = useState('')
+  const [draft, setDraft] = useState<{
+    type: 'file' | 'folder'
+    parentPath: string
+    value: string
+  } | null>(null)
   const tree = useMemo(() => buildTree(files, folders), [files, folders])
 
-  function askForFile(parentPath = '') {
-    const nextPath = window.prompt(
-      parentPath ? `New file inside ${parentPath}` : 'New file path',
-      getDefaultFilePath(parentPath),
-    )
+  function startCreate(type: 'file' | 'folder', parentPath = '') {
+    setDraft({
+      type,
+      parentPath,
+      value: type === 'file' ? 'untitled.js' : 'folder',
+    })
 
-    if (nextPath) {
-      createFile(nextPath)
-      openParentFolders(nextPath)
+    if (parentPath) {
+      setOpenFolders((current) => {
+        const next = new Set(current)
+        next.add(parentPath)
+        return next
+      })
     }
   }
 
-  function askForFolder(parentPath = '') {
-    const nextPath = window.prompt(
-      parentPath ? `New folder inside ${parentPath}` : 'New folder path',
-      getDefaultFolderPath(parentPath),
+  function commitDraft() {
+    if (!draft) {
+      return
+    }
+
+    const value = draft.value.trim()
+
+    if (!value) {
+      setDraft(null)
+      return
+    }
+
+    const nextPath = normalizePath(
+      value.startsWith('/') ? value : `${draft.parentPath || ''}/${value}`,
     )
 
-    if (nextPath) {
+    if (draft.type === 'file') {
+      createFile(nextPath)
+    } else {
       createFolder(nextPath)
-      openParentFolders(nextPath)
     }
+
+    openParentFolders(nextPath)
+    setDraft(null)
   }
 
   function askForRename(path: string) {
@@ -272,12 +295,12 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
             </span>
           </button>
 
-          <div style={{ display: 'flex', opacity: isFocused || isActive ? 1 : 0 }}>
+          <div style={{ display: 'flex', opacity: 1 }}>
             {isFolder ? (
               <>
                 <button
                   type="button"
-                  onClick={() => askForFile(node.path)}
+                  onClick={() => startCreate('file', node.path)}
                   title="New file"
                   style={iconButtonStyle}
                 >
@@ -285,7 +308,7 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => askForFolder(node.path)}
+                  onClick={() => startCreate('folder', node.path)}
                   title="New folder"
                   style={iconButtonStyle}
                 >
@@ -312,8 +335,63 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
           </div>
         </div>
 
-        {isFolder && isOpen ? node.children.map((child) => renderNode(child, depth + 1)) : null}
+        {isFolder && isOpen ? (
+          <>
+            {draft?.parentPath === node.path ? renderDraft(depth + 1) : null}
+            {node.children.map((child) => renderNode(child, depth + 1))}
+          </>
+        ) : null}
       </div>
+    )
+  }
+
+  function renderDraft(depth = 0): React.ReactNode {
+    if (!draft) {
+      return null
+    }
+
+    return (
+      <form
+        onSubmit={(event) => {
+          event.preventDefault()
+          commitDraft()
+        }}
+        style={{
+          alignItems: 'center',
+          background: '#37373d',
+          display: 'flex',
+          minHeight: 24,
+          paddingLeft: 24 + depth * 12,
+          paddingRight: 6,
+        }}
+      >
+        <span style={{ color: draft.type === 'folder' ? '#dcb67a' : '#8ab4f8', width: 20 }}>
+          {draft.type === 'folder' ? '▢' : getFileIcon(draft.value)}
+        </span>
+        <input
+          autoFocus
+          value={draft.value}
+          onBlur={commitDraft}
+          onChange={(event) => setDraft({ ...draft, value: event.target.value })}
+          onKeyDown={(event) => {
+            if (event.key === 'Escape') {
+              event.preventDefault()
+              setDraft(null)
+            }
+          }}
+          style={{
+            background: '#3c3c3c',
+            border: '1px solid #007acc',
+            color: '#ffffff',
+            flex: 1,
+            fontSize: 13,
+            minHeight: 22,
+            minWidth: 0,
+            outline: 'none',
+            padding: '0 4px',
+          }}
+        />
+      </form>
     )
   }
 
@@ -351,15 +429,16 @@ export function MiniIDEFiles({ className = '' }: MiniIDEFilesProps) {
         >
           Explorer
         </span>
-        <button type="button" onClick={() => askForFile()} title="New file" style={toolbarButtonStyle}>
+        <button type="button" onClick={() => startCreate('file')} title="New file" style={toolbarButtonStyle}>
           +
         </button>
-        <button type="button" onClick={() => askForFolder()} title="New folder" style={toolbarButtonStyle}>
+        <button type="button" onClick={() => startCreate('folder')} title="New folder" style={toolbarButtonStyle}>
           ▢
         </button>
       </div>
 
       <div style={{ padding: '4px 0' }}>
+        {draft?.parentPath === '' ? renderDraft(0) : null}
         {tree.length > 0 ? (
           tree.map((node) => renderNode(node))
         ) : (

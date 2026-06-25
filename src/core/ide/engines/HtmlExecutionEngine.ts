@@ -34,11 +34,11 @@ export class HtmlExecutionEngine implements ExecutionEngine {
     window.addEventListener('message', this.handleMessage)
   }
 
-  async run(files = this.files): Promise<void> {
+  async run(files = this.files, activeFile?: string): Promise<void> {
     this.files = files
     this.revokePreviewUrl()
 
-    const documentSource = await this.createDocument(files)
+    const documentSource = await this.createDocument(files, activeFile)
     const blob = new Blob([documentSource], { type: 'text/html' })
     this.previewUrl = URL.createObjectURL(blob)
     this.emitPreview(this.previewUrl)
@@ -88,13 +88,19 @@ export class HtmlExecutionEngine implements ExecutionEngine {
     }
   }
 
-  private async createDocument(files: FileMap): Promise<string> {
+  private async createDocument(files: FileMap, activeFile?: string): Promise<string> {
     const html = files['/index.html']?.code ?? '<div id="app"></div>'
     const css = Object.values(files)
       .filter((file) => file.language === 'css' || file.path.endsWith('.css'))
       .map((file) => file.code)
       .join('\n')
-    const executableFiles = Object.values(files)
+    const activeExecutableFile = activeFile ? files[activeFile] : null
+    const executableFiles = activeExecutableFile &&
+      (['javascript', 'typescript'].includes(activeExecutableFile.language ?? '') ||
+        activeExecutableFile.path.endsWith('.js') ||
+        activeExecutableFile.path.endsWith('.ts'))
+      ? [activeExecutableFile]
+      : Object.values(files)
       .filter((file) =>
         ['javascript', 'typescript'].includes(file.language ?? '') ||
         file.path.endsWith('.js') ||
