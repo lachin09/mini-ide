@@ -100,6 +100,24 @@ MiniIDE.ResetButton
 MiniIDE.ClearConsoleButton
 ```
 
+## Restricted Terminal
+
+`MiniIDE.Terminal` shows console output and includes a small command input. It
+intentionally supports only two commands:
+
+```bash
+npm install
+npm run dev
+```
+
+`npm install` prints a lesson-friendly message because dependencies are already
+prepared inside the browser runtime. `npm run dev` runs the current MiniIDE
+engine, which updates the preview and terminal output.
+
+Any other command is rejected with an error message. This keeps lessons
+predictable and avoids pretending that the browser terminal is a full system
+shell.
+
 ## Example App
 
 This repository includes a cloned lesson module in `example/`. It demonstrates

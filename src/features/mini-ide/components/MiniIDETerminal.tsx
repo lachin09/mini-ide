@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { useMiniIDESelector } from '../containers/MiniIDEContext'
 
@@ -8,7 +8,11 @@ export type MiniIDETerminalProps = {
 
 export function MiniIDETerminal({ className = '' }: MiniIDETerminalProps) {
   const consoleLines = useMiniIDESelector((state) => state.consoleLines)
+  const appendConsoleLine = useMiniIDESelector((state) => state.appendConsoleLine)
+  const isRunning = useMiniIDESelector((state) => state.isRunning)
+  const run = useMiniIDESelector((state) => state.run)
   const outputRef = useRef<HTMLDivElement | null>(null)
+  const [command, setCommand] = useState('')
 
   useEffect(() => {
     outputRef.current?.scrollTo({
@@ -16,6 +20,33 @@ export function MiniIDETerminal({ className = '' }: MiniIDETerminalProps) {
       behavior: 'smooth',
     })
   }, [consoleLines])
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const normalizedCommand = command.trim().replace(/\s+/g, ' ')
+
+    if (!normalizedCommand) {
+      return
+    }
+
+    appendConsoleLine(`$ ${normalizedCommand}`)
+    setCommand('')
+
+    if (normalizedCommand === 'npm install') {
+      appendConsoleLine('Dependencies are already installed in this browser lesson.')
+      appendConsoleLine('Use npm run dev to run the current project.')
+      return
+    }
+
+    if (normalizedCommand === 'npm run dev') {
+      appendConsoleLine('Starting MiniIDE preview...')
+      void run()
+      return
+    }
+
+    appendConsoleLine('[error] Only npm install and npm run dev are available.')
+  }
 
   return (
     <section
@@ -34,7 +65,7 @@ export function MiniIDETerminal({ className = '' }: MiniIDETerminalProps) {
       <div
         ref={outputRef}
         style={{
-          height: '100%',
+          height: 'calc(100% - 40px)',
           minHeight: 128,
           overflow: 'auto',
           padding: 12,
@@ -59,6 +90,41 @@ export function MiniIDETerminal({ className = '' }: MiniIDETerminalProps) {
           <div style={{ color: '#64748b' }}>Console output will appear here.</div>
         )}
       </div>
+      <form
+        onSubmit={handleSubmit}
+        style={{
+          alignItems: 'center',
+          borderTop: '1px solid #1f2937',
+          display: 'flex',
+          gap: 8,
+          minHeight: 40,
+          padding: '0 12px',
+        }}
+      >
+        <span aria-hidden="true" style={{ color: '#94a3b8' }}>
+          $
+        </span>
+        <input
+          aria-label="Terminal command"
+          autoCapitalize="off"
+          autoComplete="off"
+          autoCorrect="off"
+          disabled={isRunning}
+          onChange={(event) => setCommand(event.target.value)}
+          placeholder="npm install or npm run dev"
+          spellCheck={false}
+          value={command}
+          style={{
+            background: 'transparent',
+            border: 0,
+            color: '#f8fafc',
+            flex: 1,
+            font: 'inherit',
+            minWidth: 0,
+            outline: 'none',
+          }}
+        />
+      </form>
     </section>
   )
 }
