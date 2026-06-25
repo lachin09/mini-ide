@@ -115,28 +115,6 @@ function PlaygroundToolbar() {
   )
 }
 
-function PlaygroundAutoRunner({ enabled }: { enabled: boolean }) {
-  const files = useMiniIDESelector((state) => state.files)
-  const activeFile = useMiniIDESelector((state) => state.activeFile)
-  const run = useMiniIDESelector((state) => state.run)
-
-  useEffect(() => {
-    if (!enabled) {
-      return
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      void run()
-    }, 250)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [activeFile, files, enabled, run])
-
-  return null
-}
-
 export function MiniIDEPlayground({
   activeFile,
   autoRun = true,
@@ -247,7 +225,13 @@ export function MiniIDEPlayground({
         </aside>
 
         <div style={{ minWidth: 0, flex: 1 }}>
-          <MiniIDERoot activeFile={activeFile} engine={engine} files={files} folders={folders}>
+          <MiniIDERoot
+            activeFile={activeFile}
+            autoRun={autoRun}
+            engine={engine}
+            files={files}
+            folders={folders}
+          >
             <MiniIDELayout
               style={{
                 ...layoutStyle,
@@ -261,7 +245,6 @@ export function MiniIDEPlayground({
                 minHeight: 620,
               }}
             >
-              <PlaygroundAutoRunner enabled={autoRun} />
               <PlaygroundToolbar />
 
               <MiniIDEFiles style={{ gridColumn: 1, gridRow: '2 / 4' }} />

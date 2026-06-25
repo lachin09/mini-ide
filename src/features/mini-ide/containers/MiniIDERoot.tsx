@@ -8,11 +8,13 @@ import { createIDEStore } from '../store/createIDEStore'
 
 export type MiniIDERootProps = MiniIDEOptions & {
   children: React.ReactNode
+  autoRun?: boolean
   executionEngine?: ExecutionEngine
 }
 
 export function MiniIDERoot({
   activeFile,
+  autoRun = false,
   children,
   engine,
   executionEngine,
@@ -20,6 +22,7 @@ export function MiniIDERoot({
   folders,
 }: MiniIDERootProps) {
   const engineRef = useRef<ExecutionEngine>(executionEngine ?? createExecutionEngine(engine))
+  const didSetupRef = useRef(false)
   const storeRef = useRef(
     createIDEStore({
       activeFile,
@@ -38,21 +41,29 @@ export function MiniIDERoot({
     [],
   )
 
-  useEffect(() => {
+  if (!didSetupRef.current) {
+    didSetupRef.current = true
     const store = storeRef.current
     const currentEngine = engineRef.current
-    const unsubscribeConsole = currentEngine.onConsole((line) => {
+
+    currentEngine.onConsole((line) => {
       store.getState().appendConsoleLine(line)
     })
-    const unsubscribePreview = currentEngine.onPreview((url) => {
+    currentEngine.onPreview((url) => {
       store.getState().setPreviewUrl(url)
     })
 
-    void currentEngine.initialize(store.getState().files)
+    void currentEngine.initialize(store.getState().files).then(() => {
+      if (autoRun) {
+        void store.getState().run()
+      }
+    })
+  }
+
+  useEffect(() => {
+    const currentEngine = engineRef.current
 
     return () => {
-      unsubscribeConsole()
-      unsubscribePreview()
       void currentEngine.destroy()
     }
   }, [])
