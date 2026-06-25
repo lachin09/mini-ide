@@ -22,7 +22,6 @@ export function MiniIDERoot({
   folders,
 }: MiniIDERootProps) {
   const engineRef = useRef<ExecutionEngine>(executionEngine ?? createExecutionEngine(engine))
-  const didSetupRef = useRef(false)
   const storeRef = useRef(
     createIDEStore({
       activeFile,
@@ -41,34 +40,30 @@ export function MiniIDERoot({
     [],
   )
 
-  if (!didSetupRef.current) {
-    didSetupRef.current = true
+  useEffect(() => {
     const store = storeRef.current
     const currentEngine = engineRef.current
-
-    currentEngine.onConsole((line) => {
+    const unsubscribeConsole = currentEngine.onConsole((line) => {
       store.getState().appendConsoleLine(line)
     })
-    currentEngine.onPreview((url) => {
+    const unsubscribePreview = currentEngine.onPreview((url) => {
       store.getState().setPreviewUrl(url)
     })
+    let didCancel = false
 
-    void currentEngine.initialize(store.getState().files)
-
-    if (autoRun) {
-      window.setTimeout(() => {
+    void currentEngine.initialize(store.getState().files).then(() => {
+      if (!didCancel && autoRun) {
         void store.getState().run()
-      }, 0)
-    }
-  }
-
-  useEffect(() => {
-    const currentEngine = engineRef.current
+      }
+    })
 
     return () => {
+      didCancel = true
+      unsubscribeConsole()
+      unsubscribePreview()
       void currentEngine.destroy()
     }
-  }, [])
+  }, [autoRun])
 
   return (
     <MiniIDEContext.Provider value={contextValue}>

@@ -66,6 +66,7 @@ export class AutoExecutionEngine implements ExecutionEngine {
       this.htmlEngine.destroy(),
       this.reactEngine.destroy(),
     ])
+    this.didWireEngines = false
     this.consoleCallbacks.clear()
     this.previewCallbacks.clear()
   }
